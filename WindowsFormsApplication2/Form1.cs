@@ -23,6 +23,7 @@ namespace WindowsFormsApplication2
         private static bool isKingInCheck;                          // flag to determine if any of the 2 kings is threatened.
         private static ToolStripLabel statusLabel;
         private static CheckInfo info;
+        private static Move lastMove;
 
         public Form1()
         {
@@ -34,6 +35,7 @@ namespace WindowsFormsApplication2
             pieceMap = new Dictionary<Position, ChessPiece>();
             statusLabel = new ToolStripLabel();
             info = null;
+            lastMove = null;    // a reference for the last Position.
 
             //adding status label to the status strip, cant be added via the designer because this is a static object.
             statusStrip1.Items.Add(statusLabel);
@@ -471,6 +473,7 @@ namespace WindowsFormsApplication2
                 kingInCheck(newPosition);
                 isWhitesTurn = !isWhitesTurn;
                 updateStatus();
+                lastMove = new Move(oldPosition,newPosition);
             }
             else
             {
@@ -479,7 +482,7 @@ namespace WindowsFormsApplication2
             }
         }
 
-        public static void  kingInCheck(Position position)  // checks if the piece in the provided position poses a check to the opposite king.
+        public static void kingInCheck(Position position)  // checks if the piece in the provided position poses a check to the opposite king.
         {
             ChessPiece piece = squares[position.Row, position.Col].getPiece(); // the piece which had been moved now.
             ChessPiece enemyKing;
@@ -891,5 +894,35 @@ namespace WindowsFormsApplication2
     public class CheckInfo
     {
         public Position pieceInCheck, threatenedBy; //  chess piece at that position can be obtained, so no need for explicit chesspiece declaration here
+    }
+
+    public class Move
+    {
+        private Position previousPosition, newPosition;
+        public Move(Position pOld, Position pNew)
+        {
+            this.previousPosition = pOld;
+            this.newPosition = pNew;
+        }
+        
+        public Position PreviousPosition
+        {
+            get { return this.previousPosition; }
+        }
+        public Position NewPosition
+        {
+            get { return this.newPosition; }
+        }
+
+        public override bool Equals(object obj)
+        {
+            if (ReferenceEquals(obj,null) || obj == null)
+                return false;
+            else
+            {
+                Move move = (Move)obj;
+                return (move.PreviousPosition == this.previousPosition && move.NewPosition == this.previousPosition);
+            }
+        }
     }
 }
